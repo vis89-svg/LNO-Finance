@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "node api/index.js",
     "start": "node api/index.js",
-    "build": "echo 'No build step required for Vercel Functions'",
-    "vercel-build": "echo 'Vercel ready - Express API in /api/'",
+    "build": "echo 'Vercel Express Functions ready'",
+    "vercel-build": "npm install",
     "migrate": "node scripts/migrate-data.js"
   },
   "keywords": [
@@ -35,5 +35,19 @@
   },
   "engines": {
     "node": "18.x"
+  },
+  "vercel": {
+    "functions": {
+      "api/index.js": {
+        "runtime": "nodejs18.x",
+        "maxDuration": 30
+      }
+    },
+    "builds": [
+      {
+        "src": "api/index.js",
+        "use": "@vercel/node"
+      }
+    ]
   }
 }
