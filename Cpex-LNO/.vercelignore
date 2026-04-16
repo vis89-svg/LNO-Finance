@@ -1,5 +1,13 @@
-backend/
+node_modules/
+dist/
+.env
+.env.example
 .vscode/
 README.md
 scripts/
+config/
+controllers/
+middleware/
+routes/
+utils/
 vercel.json

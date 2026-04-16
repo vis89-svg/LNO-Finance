@@ -1,81 +1,161 @@
+# Capex Finance Backend - Node.js + Firebase
 
-# Capex Finance Management Website 📊💼
+This is the Node.js backend for Capex Finance, using Firebase Firestore as the database.
 
-**Capex Finance** is a web-based platform developed to manage and streamline finance operations for Legacy IEDC at UCEK. This platform provides secure access and management of financial data, enabling efficient tracking of expenses and budgeting.
+## Prerequisites
 
----
+1. **Node.js** (v16 or higher)
+   - Download from: https://nodejs.org/
 
-## 🌟 Features
+2. **Firebase Project** with Firestore enabled
+   - Go to: https://console.firebase.google.com/
+   - Create a new project or select existing one
+   - Enable Firestore Database
 
-- **👤 Superuser Control**: The superuser has full control over the platform, managing all finances, user accounts, and data.
-- **🔒 User-Specific Access**: Users can only access the financial details specific to their accounts, with credentials (username and password) generated and managed by the superuser.
-- **💸 Expense Management**: The superuser can add, edit, and delete expense records, ensuring up-to-date financial information.
-- **👥 User Management**: The superuser can add new users, assign access levels, or remove users as needed.
-- **📈 Data Export**: Financial data can be exported in Excel format for external reporting or analysis.
+## Setup Instructions
 
----
+### Step 1: Install Dependencies
 
-## 🚀 Getting Started
+```bash
+cd backend
+npm install
+```
 
-Follow these instructions to set up Capex Finance on your local machine.
+### Step 2: Configure Firebase
 
-### ⚙️ Prerequisites
+1. Go to Firebase Console > Project Settings > Service Accounts
+2. Click "Generate New Private Key"
+3. Save the downloaded JSON file as `firebase-service-account.json` in the `backend/config/` folder
 
-- **Node.js**: Install Node.js v16 or higher.
-- **npm**: Included with Node.js.
-- **Firebase**: Required for the backend if using Firestore.
+### Step 3: Create Environment File
 
----
+Copy `.env.example` to `.env`:
 
-### 💻 Installation
+```bash
+cp .env.example .env
+```
 
-1. Clone the Repository:
-   - git clone https://github.com/username/capex-finance.git
-   - cd capex-finance/backend
+Edit `.env` and update:
+- `SESSION_SECRET` - A random secret key for sessions
+- `PORT` - Server port (default: 3000)
+- `ADMIN_USERNAME` and `ADMIN_PASSWORD` - Hardcoded admin credentials
 
-2. Install Dependencies:
-   - npm install
+### Step 4: Start the Server
 
-3. Configure Environment:
-   - Copy `.env.example` to `.env`
-   - Update `SESSION_SECRET`, `PORT`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and Firebase settings as needed.
+```bash
+# Development mode (with auto-reload)
+npm run dev
 
-4. Start the Server:
-   - Development mode:
-     - npm run dev
-   - Production mode:
-     - npm start
+# Production mode
+npm start
+```
 
-5. Open the App:
-   - Visit `http://localhost:3000`
+The server will start at `http://localhost:3000`
 
----
+```bash
+# Development mode (with auto-reload)
+npm run dev
 
-## 🛠️ Usage
+# Production mode
+npm start
+```
 
-- **Superuser Functions**: The superuser can log in to the admin dashboard, manage user accounts, and control all financial records.
-- **User Access**: Users can view and interact only with the finance details assigned to them by the superuser.
-- **Exporting Data**: Export financial data in Excel format for easy reporting or record-keeping.
+The server will start at `http://localhost:3000`
 
----
+## Project Structure
 
-## 🤝 Contributing
+```
+backend/
+├── config/
+│   └── firebase.js          # Firebase Admin SDK initialization
+├── controllers/
+│   ├── authController.js    # Authentication logic
+│   ├── eventController.js   # Event CRUD operations
+│   └── financeController.js # Finance record operations
+├── middleware/
+│   └── session.js           # Session management
+├── routes/
+│   ├── auth.js              # Auth routes
+│   ├── events.js            # Event routes
+│   └── finances.js          # Finance routes
+├── utils/
+│   └── dateHelpers.js       # Date formatting utilities
+├── server.js                # Main Express app
+├── package.json
+└── .env
+```
 
-Contributions are welcome! Please follow these steps:
+## API Endpoints
 
-1. Fork the repository.
-2. Create a new branch for your feature (git checkout -b feature-name).
-3. Commit your changes (git commit -m 'Add new feature').
-4. Push to the branch (git push origin feature-name).
-5. Open a pull request and describe your changes.
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | User login |
+| POST | `/api/auth/logout` | User logout |
+| GET | `/api/auth/check` | Check auth status |
 
----
+### Events
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/events` | Get all events |
+| GET | `/api/events/:id` | Get single event |
+| POST | `/api/events` | Create new event |
+| POST | `/api/events/:id/update` | Update event |
+| POST | `/api/events/:id/delete` | Delete event |
 
+### Finances
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/finances/event/:eventId` | Get finances for event |
+| GET | `/api/finances/:id` | Get single finance |
+| POST | `/api/finances/event/:eventId/add` | Add finance record |
+| POST | `/api/finances/:id/update` | Update finance |
+| POST | `/api/finances/:id/delete` | Delete finance |
 
-## 🙏 Acknowledgments
+## Frontend Files
 
-Special thanks to the team at Legacy IEDC UCEK for supporting the development of this project.
+Static HTML files are in the `public/` folder:
+- `login.html` - Login page
+- `index.html` - Main dashboard
+- `event-creation.html` - Create event page
+- `edit-event.html` - Edit event page
+- `add-finance.html` - Add finance record page
 
----
+## Firebase Security Rules
 
+For development, you can use these permissive rules in Firestore:
 
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+**Note:** Security is handled by the Express middleware. For production, implement proper Firebase security rules.
+
+## Default Admin Credentials
+
+- **Username:** `Legacyiedc`
+- **Password:** `8474244`
+
+These can be changed in the `.env` file.
+
+## Troubleshooting
+
+### Firebase Connection Error
+- Ensure `firebase-service-account.json` exists in `backend/config/`
+- Check that Firestore is enabled in your Firebase project
+- Verify the service account has proper permissions
+
+### Port Already in Use
+- Change the `PORT` value in `.env`
+- Or kill the process using port 3000
+
+## License
+
+ISC

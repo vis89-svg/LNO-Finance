@@ -1,19 +1,46 @@
 {
-  "version": 3,
+  "version": 2,
   "builds": [
     {
-      "src": "public/**",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/public/index.html"
+      "src": "^/$",
+      "dest": "/login.html"
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/$1"
+      "src": "^/login$",
+      "dest": "/login.html"
+    },
+    {
+      "src": "^/index$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/create-event$",
+      "dest": "/event-creation.html"
+    },
+    {
+      "src": "^/add-finance(?:/.*)?$",
+      "dest": "/add-finance.html"
+    },
+    {
+      "src": "^/edit-event(?:/.*)?$",
+      "dest": "/edit-event.html"
+    },
+    {
+      "src": "^/(.*\.html)$",
+      "dest": "/$1"
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/$1"
     }
   ]
 }
