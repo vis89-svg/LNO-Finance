@@ -2,18 +2,20 @@
   "name": "capex-finance-backend",
   "version": "1.0.0",
   "description": "Node.js backend for Capex Finance - Legacy IEDC event management",
-  "main": "server.js",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "node build-static.js",
+    "dev": "node api/index.js",
+    "start": "node api/index.js",
+    "build": "echo 'No build step required for Vercel Functions'",
+    "vercel-build": "echo 'Vercel ready - Express API in /api/'",
     "migrate": "node scripts/migrate-data.js"
   },
   "keywords": [
     "finance",
     "event-management",
     "firebase",
-    "express"
+    "express",
+    "vercel"
   ],
   "author": "",
   "license": "ISC",
@@ -30,5 +32,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
