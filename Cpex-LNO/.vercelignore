@@ -1,0 +1,5 @@
+backend/
+.vscode/
+README.md
+scripts/
+vercel.json
