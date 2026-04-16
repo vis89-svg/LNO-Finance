@@ -21,9 +21,9 @@ Follow these instructions to set up Capex Finance on your local machine.
 
 ### ⚙️ Prerequisites
 
-- **🐍 Python 3.x**: Ensure Python is installed.
-- **🌐 Django**: Install Django to manage the web application.
-- **💾 Database**: SQLite is set as the default, but you can configure a different database in the settings if needed.
+- **Node.js**: Install Node.js v16 or higher.
+- **npm**: Included with Node.js.
+- **Firebase**: Required for the backend if using Firestore.
 
 ---
 
@@ -31,23 +31,23 @@ Follow these instructions to set up Capex Finance on your local machine.
 
 1. Clone the Repository:
    - git clone https://github.com/username/capex-finance.git
-   - cd capex-finance
+   - cd capex-finance/backend
 
 2. Install Dependencies:
-   - pip install -r requirements.txt
+   - npm install
 
-3. Set Up Database:
-   - Apply migrations to set up the database tables:
-     - python manage.py migrate
+3. Configure Environment:
+   - Copy `.env.example` to `.env`
+   - Update `SESSION_SECRET`, `PORT`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and Firebase settings as needed.
 
-4. Create a Superuser:
-   - To manage the application, create a superuser account:
-     - python manage.py createsuperuser
+4. Start the Server:
+   - Development mode:
+     - npm run dev
+   - Production mode:
+     - npm start
 
-5. Run the Application:
-   - Start the development server with:
-     - python manage.py runserver
-   - Open http://127.0.0.1:8000 in your browser to view the application.
+5. Open the App:
+   - Visit `http://localhost:3000`
 
 ---
 

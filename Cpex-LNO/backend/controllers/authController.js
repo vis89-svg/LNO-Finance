@@ -1,7 +1,7 @@
 const { db } = require('../config/firebase');
 const bcrypt = require('bcryptjs');
 
-// Hardcoded admin credentials (matching Django backend)
+// Hardcoded admin credentials for local development
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'Legacyiedc';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '8474244';
 
@@ -55,14 +55,14 @@ const login = async (req, res) => {
           return res.status(401).json({ error: 'Invalid credentials' });
         }
       } else {
-        // Plaintext password match (legacy Django data)
+        // Plaintext password match
         const doc = snapshot.docs[0];
         user = doc.data();
         eventId = doc.id;
       }
     }
 
-    // Set session data
+    // Set session data and permissions
     req.session.isAuthenticated = true;
     req.session.isAdmin = isAdmin;
     req.session.user = {
@@ -72,8 +72,7 @@ const login = async (req, res) => {
     };
     req.session.eventId = eventId;
 
-    // Match the original Django behavior:
-    // admins can create/edit/delete, regular users can only view their own event data.
+    // Set permission flags for admin and event users
     req.session.show_add_button = isAdmin;
     req.session.show_edit_button = isAdmin;
     req.session.show_delete_menu = isAdmin;

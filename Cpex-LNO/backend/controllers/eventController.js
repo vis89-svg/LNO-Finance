@@ -129,7 +129,7 @@ const createEvent = async (req, res) => {
     const eventData = {
       event_name: event_name.trim(),
       user_name: user_name.trim(),
-      password: password, // Will be hashed in migration, stored as-is for Django compatibility
+      password: password,
       event_amount: event_amount || '0',
       created_at: new Date().toISOString(),
     };
@@ -206,7 +206,7 @@ const deleteEvent = async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    // Delete associated finances (cascade delete, matching Django CASCADE)
+    // Delete associated finances (cascade delete behavior)
     const financesRef = db.collection('finances');
     const financesSnapshot = await financesRef.where('event_id', '==', id).get();
 

@@ -1,6 +1,6 @@
 # Capex Finance Backend - Node.js + Firebase
 
-This is the Node.js backend for Capex Finance, replacing the Django backend with Firebase Firestore as the database.
+This is the Node.js backend for Capex Finance, using Firebase Firestore as the database.
 
 ## Prerequisites
 
@@ -40,20 +40,17 @@ Edit `.env` and update:
 - `PORT` - Server port (default: 3000)
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` - Hardcoded admin credentials
 
-### Step 4: Migrate Data from SQLite (Optional)
-
-If you have existing data in the Django SQLite database:
+### Step 4: Start the Server
 
 ```bash
-npm run migrate
+# Development mode (with auto-reload)
+npm run dev
+
+# Production mode
+npm start
 ```
 
-This will:
-- Read data from `moveproject/db.sqlite3`
-- Create collections in Firestore: `events`, `finances`
-- Preserve all existing data
-
-### Step 5: Start the Server
+The server will start at `http://localhost:3000`
 
 ```bash
 # Development mode (with auto-reload)
@@ -155,23 +152,9 @@ These can be changed in the `.env` file.
 - Check that Firestore is enabled in your Firebase project
 - Verify the service account has proper permissions
 
-### Migration Fails
-- Ensure `db.sqlite3` exists in the `moveproject/` folder
-- Run `npm install` to ensure sqlite3 is installed
-- Check that Firebase credentials are configured
-
 ### Port Already in Use
 - Change the `PORT` value in `.env`
 - Or kill the process using port 3000
-
-## Migration from Django
-
-The migration preserves:
-- All existing events and finance records
-- User credentials (plaintext passwords from Django)
-- Date formats (DD-MM-YYYY for display)
-- Session-based authentication
-- All frontend functionality
 
 ## License
 
