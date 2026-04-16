@@ -26,8 +26,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Session middleware
 app.use(sessionMiddleware);
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static files from public directory (Vercel + Local)
+app.use(express.static(path.join(__dirname, 'public')));  // Fixed: __dirname + 'public' (no ../)
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -41,40 +41,40 @@ app.get('/api/health', (req, res) => {
 
 // Serve login page for root route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/login.html'));
+  res.sendFile(path.join(__dirname, 'public/login.html'));
 });
 
 // Serve index page
 app.get('/index', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // Serve other pages
 app.get('/create-event', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/event-creation.html'));
+  res.sendFile(path.join(__dirname, 'public/event-creation.html'));
 });
 app.get('/create-event.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/event-creation.html'));
+  res.sendFile(path.join(__dirname, 'public/event-creation.html'));
 });
 app.get('/add-finance/:eventId', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/add-finance.html'));
+  res.sendFile(path.join(__dirname, 'public/add-finance.html'));
 });
 app.get('/add-finance/:eventId.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/add-finance.html'));
+  res.sendFile(path.join(__dirname, 'public/add-finance.html'));
 });
 app.get('/edit-event/:eventId', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/edit-event.html'));
+  res.sendFile(path.join(__dirname, 'public/edit-event.html'));
 });
 app.get('/edit-event/:eventId.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/edit-event.html'));
+  res.sendFile(path.join(__dirname, 'public/edit-event.html'));
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
+  res.status(404).sendFile(path.join(__dirname, 'public/404.html'));
 });
 
 // Error handler
@@ -83,9 +83,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start the local dev server only when this file is run directly.
-if (require.main === module) app.listen(PORT, () => {
-  console.log(`
+// 🚀 VERCEL SERVERLESS + LOCAL SUPPORT
+module.exports = app;  // REQUIRED for Vercel serverless
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`
   ╔═══════════════════════════════════════════════════════════╗
   ║                                                           ║
   ║   Capex Finance Backend is running!                       ║
@@ -98,6 +101,5 @@ if (require.main === module) app.listen(PORT, () => {
   ║                                                           ║
   ╚═══════════════════════════════════════════════════════════╝
   `);
-});
-
-module.exports = app;
+  });
+}
