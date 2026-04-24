@@ -27,9 +27,6 @@ try {
   // Continue anyway - we'll serve a basic health check
 }
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
