@@ -31,39 +31,37 @@ const resolveServiceAccount = () => {
 };
 
 let db = null;
-let isInitialized = false;
+let initError = null;
 
-const initializeFirebase = () => {
-  if (isInitialized) return;
+try {
+  if (!admin.apps.length) {
+    const serviceAccount = resolveServiceAccount();
 
-  try {
-    if (!admin.apps.length) {
-      const serviceAccount = resolveServiceAccount();
-
-      if (!serviceAccount) {
-        console.warn('⚠️  Firebase credentials not configured. Features requiring Firebase will be disabled.');
-        isInitialized = true;
-        return;
-      }
-
+    if (serviceAccount) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
+      
+      db = admin.firestore();
+      db.settings({
+        ignoreUndefinedProperties: true,
+      });
+      console.log('✅ Firebase initialized successfully');
+    } else {
+      console.warn('⚠️  Firebase credentials not configured. Features requiring Firebase will be disabled.');
     }
-
-    db = admin.firestore();
-    db.settings({
-      ignoreUndefinedProperties: true,
-    });
-    isInitialized = true;
-    console.log('✅ Firebase initialized successfully');
-  } catch (err) {
-    console.error('❌ Firebase initialization error:', err.message);
-    isInitialized = true;
   }
+} catch (err) {
+  console.error('❌ Firebase initialization error:', err.message);
+  initError = err;
+}
+
+// Proxy to handle db being null
+const getDb = () => {
+  if (!db) {
+    throw new Error('Firebase not initialized. Make sure FIREBASE_SERVICE_ACCOUNT or FIREBASE_PROJECT_ID environment variables are set.');
+  }
+  return db;
 };
 
-// Initialize Firebase on startup
-initializeFirebase();
-
-module.exports = { admin, db, initializeFirebase, isInitialized: () => isInitialized };
+module.exports = { admin, db, getDb, initError };

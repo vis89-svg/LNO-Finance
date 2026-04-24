@@ -6,9 +6,26 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const { sessionMiddleware } = require('../middleware/session');
-const authRoutes = require('../routes/auth');
-const eventRoutes = require('../routes/events');
-const financeRoutes = require('../routes/finances');
+const firebaseConfig = require('../config/firebase');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Check Firebase initialization
+if (firebaseConfig.initError) {
+  console.error('⚠️  Firebase initialization failed:', firebaseConfig.initError.message);
+}
+
+// Try to load routes (they might fail if Firebase isn't available)
+let authRoutes, eventRoutes, financeRoutes;
+try {
+  authRoutes = require('../routes/auth');
+  eventRoutes = require('../routes/events');
+  financeRoutes = require('../routes/finances');
+} catch (err) {
+  console.error('❌ Failed to load routes:', err.message);
+  // Continue anyway - we'll serve a basic health check
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,13 +59,29 @@ app.use(sessionMiddleware);
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/events', eventRoutes);
-app.use('/api/finances', financeRoutes);
+if (authRoutes && eventRoutes && financeRoutes) {
+  app.use('/api/auth', authRoutes);
+  app.use('/api/events', eventRoutes);
+  app.use('/api/finances', financeRoutes);
+} else {
+  console.warn('⚠️  Some routes are not available due to initialization errors');
+}
 
-// Health check endpoint
+// Health check endpoint - detailed diagnostics
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Capex Finance API is running' });
+  const status = {
+    status: 'ok',
+    message: 'Capex Finance API is running',
+    firebase: firebaseConfig.db ? 'connected' : 'not connected',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+  };
+
+  if (firebaseConfig.initError) {
+    status.firebase_error = firebaseConfig.initError.message;
+  }
+
+  res.json(status);
 });
 
 // Serve login page for root route
@@ -86,12 +119,33 @@ app.get('/edit-event/:eventId.html', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '..', 'public/404.html'));
+  // Check if it's an API request
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ 
+      error: 'Not found',
+      message: 'This API endpoint does not exist. Check /api/health for status.'
+    });
+  }
+  
+  // Serve 404.html for non-API requests
+  res.status(404).sendFile(path.join(__dirname, '..', 'public/404.html'), (err) => {
+    if (err) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  
+  if (req.path.startsWith('/api/')) {
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: process.env.NODE_ENV === 'production' ? 'An error occurred' : err.message
+    });
+  }
+  
   res.status(500).json({ error: 'Internal server error' });
 });
 
