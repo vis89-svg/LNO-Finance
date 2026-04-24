@@ -1,6 +1,7 @@
 # Environment variables
 .env
 firebase-service-account.json
+serviceAccountKey.json
 
 # Dependencies
 node_modules/
