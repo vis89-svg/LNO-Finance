@@ -30,23 +30,40 @@ const resolveServiceAccount = () => {
   return null;
 };
 
-if (!admin.apps.length) {
-  const serviceAccount = resolveServiceAccount();
+let db = null;
+let isInitialized = false;
 
-  if (!serviceAccount) {
-    throw new Error(
-      'Firebase credentials not configured. Set FIREBASE_SERVICE_ACCOUNT, FIREBASE_PROJECT_ID/FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY, or FIREBASE_SERVICE_ACCOUNT_PATH.'
-    );
+const initializeFirebase = () => {
+  if (isInitialized) return;
+
+  try {
+    if (!admin.apps.length) {
+      const serviceAccount = resolveServiceAccount();
+
+      if (!serviceAccount) {
+        console.warn('⚠️  Firebase credentials not configured. Features requiring Firebase will be disabled.');
+        isInitialized = true;
+        return;
+      }
+
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    }
+
+    db = admin.firestore();
+    db.settings({
+      ignoreUndefinedProperties: true,
+    });
+    isInitialized = true;
+    console.log('✅ Firebase initialized successfully');
+  } catch (err) {
+    console.error('❌ Firebase initialization error:', err.message);
+    isInitialized = true;
   }
+};
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
+// Initialize Firebase on startup
+initializeFirebase();
 
-const db = admin.firestore();
-db.settings({
-  ignoreUndefinedProperties: true,
-});
-
-module.exports = { admin, db };
+module.exports = { admin, db, initializeFirebase, isInitialized: () => isInitialized };
